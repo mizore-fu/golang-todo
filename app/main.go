@@ -12,17 +12,56 @@ type Task struct {
 	Completed bool `json:"completed"`
 }
 
-var tasks []*Task = []*Task{}
+func NewTask() *Task {
+	return &Task{}
+}
+
+type Tasks struct {
+	tasks []*Task
+}
+
+func (ts *Tasks) GetAllTasks() []*Task {
+	return ts.tasks
+}
+
+func (ts *Tasks) AddTask(c echo.Context) error {
+	addedTask := NewTask()
+	//TODO: Bindの使用について要検討({"bad": "testing"} このようなbodyの対策)
+	if err := c.Bind(addedTask); err != nil {
+		return err
+	}
+	//TODO: idフィールドへの値の追加
+	ts.tasks = append(ts.tasks, addedTask)
+	return nil
+}
+
+var tasks *Tasks = &Tasks{
+	tasks: []*Task{
+		{ID: "1", Name: "eat", Completed: false},
+		{ID: "2", Name: "sleep", Completed: false},
+	},
+}
+
+
 
 func main() {
-	tasks = append(tasks, &Task{ID: "1", Name: "eat", Completed: false})
-	tasks = append(tasks, &Task{ID: "2", Name: "sleep", Completed: false})
-
 	e := echo.New()
-	e.GET("/tasks", getAllTasks)
+	e.GET("/tasks", GetAllTasksHandler)
+	e.POST("/tasks", AddTaskHandler)
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
-func getAllTasks(c echo.Context) error {
-	return c.JSON(http.StatusOK, tasks)
+//GET /tasks
+func GetAllTasksHandler(c echo.Context) error {
+	return c.JSON(http.StatusOK, tasks.GetAllTasks())
+}
+
+//POST /tasks
+//body: {name: "test"}
+func AddTaskHandler(c echo.Context) error {
+	err := tasks.AddTask(c)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusCreated, nil)
 }
