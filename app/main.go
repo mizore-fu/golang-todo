@@ -1,28 +1,23 @@
 package main
 
 import (
+	"app/model"
 	"net/http"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
-type Task struct {
-	ID string `json:"id"`
-	Name string `json:"name"`
-	Completed bool `json:"completed"`
-}
-
 type Tasks struct {
-	tasks []*Task
+	tasks []*model.Task
 }
 
-func (ts *Tasks) GetAllTasks() []*Task {
+func (ts *Tasks) GetAllTasks() []*model.Task {
 	return ts.tasks
 }
 
 func (ts *Tasks) AddTask(c echo.Context) error {
-	addedTask := new(Task)
+	addedTask := new(model.Task)
 	//TODO: Bindの使用について要検討({"bad": "testing"} このようなbodyの対策)
 	if err := c.Bind(addedTask); err != nil {
 		return err
@@ -35,7 +30,7 @@ func (ts *Tasks) AddTask(c echo.Context) error {
 }
 
 var tasks *Tasks = &Tasks{
-	tasks: []*Task{
+	tasks: []*model.Task{
 		{ID: "1", Name: "eat", Completed: false},
 		{ID: "2", Name: "sleep", Completed: false},
 	},
