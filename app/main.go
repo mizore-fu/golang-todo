@@ -13,10 +13,6 @@ type Task struct {
 	Completed bool `json:"completed"`
 }
 
-func NewTask() *Task {
-	return &Task{}
-}
-
 type Tasks struct {
 	tasks []*Task
 }
@@ -26,7 +22,7 @@ func (ts *Tasks) GetAllTasks() []*Task {
 }
 
 func (ts *Tasks) AddTask(c echo.Context) error {
-	addedTask := NewTask()
+	addedTask := new(Task)
 	//TODO: Bindの使用について要検討({"bad": "testing"} このようなbodyの対策)
 	if err := c.Bind(addedTask); err != nil {
 		return err
