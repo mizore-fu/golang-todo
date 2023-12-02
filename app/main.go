@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -30,7 +31,9 @@ func (ts *Tasks) AddTask(c echo.Context) error {
 	if err := c.Bind(addedTask); err != nil {
 		return err
 	}
-	//TODO: idフィールドへの値の追加
+
+	id := "taskid-" + uuid.NewString()
+	addedTask.ID = id
 	ts.tasks = append(ts.tasks, addedTask)
 	return nil
 }
