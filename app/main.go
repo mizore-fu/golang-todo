@@ -2,6 +2,7 @@ package main
 
 import (
 	"app/model"
+	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -32,6 +33,23 @@ func (ts *Tasks) AddTask(c echo.Context) error {
 	return nil
 }
 
+func (ts *Tasks) DeleteTask(id string) error {
+	position := -1
+	for i, task := range ts.tasks {
+		if id == task.ID {
+			position = i
+			break
+		}
+	}
+	if position == -1 {
+		return errors.New("削除対象のタスクが見つかりませんでした。")
+	}
+
+	ts.tasks[position] = ts.tasks[len(ts.tasks) - 1]
+	ts.tasks = ts.tasks[:len(ts.tasks) - 1]
+	return nil
+}
+
 var tasks *Tasks = &Tasks{
 	tasks: []*model.Task{
 		{ID: "1", Name: "eat", Completed: false},
@@ -45,6 +63,7 @@ func main() {
 	e := echo.New()
 	e.GET("/tasks", GetAllTasksHandler)
 	e.POST("/tasks", AddTaskHandler)
+	e.DELETE("/tasks/:id", DeleteTaskHandler)
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
@@ -56,9 +75,17 @@ func GetAllTasksHandler(c echo.Context) error {
 //POST /tasks
 //body: {name: "test"}
 func AddTaskHandler(c echo.Context) error {
-	err := tasks.AddTask(c)
-	if err != nil {
+	if err := tasks.AddTask(c); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusCreated, nil)
+}
+
+//DELETE /tasks/taskid-12345
+func DeleteTaskHandler(c echo.Context) error {
+	id := c.Param("id")
+	if err := tasks.DeleteTask(id); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, nil)
 }
