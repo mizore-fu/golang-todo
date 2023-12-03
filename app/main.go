@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 type Tasks struct {
@@ -61,6 +62,8 @@ var tasks *Tasks = &Tasks{
 
 func main() {
 	e := echo.New()
+	e.Use(middleware.CORS())
+
 	e.GET("/tasks", GetAllTasksHandler)
 	e.POST("/tasks", AddTaskHandler)
 	e.DELETE("/tasks/:id", DeleteTaskHandler)
