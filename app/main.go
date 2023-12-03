@@ -52,10 +52,7 @@ func (ts *Tasks) DeleteTask(id string) error {
 }
 
 var tasks *Tasks = &Tasks{
-	tasks: []*model.Task{
-		{ID: "1", Name: "eat", Completed: false},
-		{ID: "2", Name: "sleep", Completed: false},
-	},
+	tasks: []*model.Task{},
 }
 
 
