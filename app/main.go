@@ -18,13 +18,16 @@ func (ts *Tasks) GetAllTasks() []*model.Task {
 
 func (ts *Tasks) AddTask(c echo.Context) error {
 	addedTask := new(model.Task)
-	//TODO: Bindの使用について要検討({"bad": "testing"} このようなbodyの対策)
 	if err := c.Bind(addedTask); err != nil {
 		return err
 	}
+	addedTask.ID = "taskid-" + uuid.NewString()
+	addedTask.Completed = false
 
-	id := "taskid-" + uuid.NewString()
-	addedTask.ID = id
+	if err := addedTask.Validate(); err != nil {
+		return err
+	}
+
 	ts.tasks = append(ts.tasks, addedTask)
 	return nil
 }
