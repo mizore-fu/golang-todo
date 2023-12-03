@@ -10,10 +10,10 @@ type Task struct {
 	Completed bool `json:"completed"`
 }
 
-func (task *Task) Validate() error {
-    return validation.ValidateStruct(task,
+func (t *Task) Validate() error {
+    return validation.ValidateStruct(t,
 		validation.Field(
-			&task.Name,
+			&t.Name,
 			validation.Required.Error("name is required"),
 		),
 	)
