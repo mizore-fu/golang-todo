@@ -46,8 +46,7 @@ func (ts *Tasks) DeleteTask(id string) error {
 		return errors.New("削除対象のタスクが見つかりませんでした。")
 	}
 
-	ts.tasks[position] = ts.tasks[len(ts.tasks) - 1]
-	ts.tasks = ts.tasks[:len(ts.tasks) - 1]
+	ts.tasks = append(ts.tasks[:position], ts.tasks[position+1:]...)
 	return nil
 }
 
