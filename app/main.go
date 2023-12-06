@@ -35,6 +35,26 @@ func (ts *Tasks) AddTask(c echo.Context) error {
 }
 
 func (ts *Tasks) DeleteTask(id string) error {
+	position := ts.FindTasksIndexFromId(id)
+	if position == -1 {
+		return errors.New("削除対象のタスクが見つかりませんでした。")
+	}
+
+	ts.tasks = append(ts.tasks[:position], ts.tasks[position+1:]...)
+	return nil
+}
+
+func (ts *Tasks) UpdateTask(task *model.Task) error {
+	position := ts.FindTasksIndexFromId(task.ID)
+	if position == -1 {
+		return errors.New("更新対象のタスクが見つかりませんでした。")
+	}
+
+	ts.tasks[position] = task
+	return nil
+}
+
+func (ts *Tasks) FindTasksIndexFromId(id string) int {
 	position := -1
 	for i, task := range ts.tasks {
 		if id == task.ID {
@@ -42,12 +62,7 @@ func (ts *Tasks) DeleteTask(id string) error {
 			break
 		}
 	}
-	if position == -1 {
-		return errors.New("削除対象のタスクが見つかりませんでした。")
-	}
-
-	ts.tasks = append(ts.tasks[:position], ts.tasks[position+1:]...)
-	return nil
+	return position
 }
 
 var tasks *Tasks = &Tasks{
@@ -62,6 +77,7 @@ func main() {
 
 	e.GET("/tasks", GetAllTasksHandler)
 	e.POST("/tasks", AddTaskHandler)
+	e.PUT("/tasks/:id", UpdateTaskHandler)
 	e.DELETE("/tasks/:id", DeleteTaskHandler)
 	e.Logger.Fatal(e.Start(":8080"))
 }
@@ -86,5 +102,27 @@ func DeleteTaskHandler(c echo.Context) error {
 	if err := tasks.DeleteTask(id); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	return c.JSON(http.StatusOK, nil)
+}
+
+//PUT /tasks/taskid-12345
+//body: {name: "test", completed: true}
+func UpdateTaskHandler(c echo.Context) error {
+	updatedTask := &model.Task{}
+	if err := c.Bind(updatedTask); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	id := c.Param("id")
+	updatedTask.ID = id
+
+	if err := updatedTask.Validate(); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	if err := tasks.UpdateTask(updatedTask); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, nil)
 }

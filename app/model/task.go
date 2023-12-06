@@ -12,9 +12,8 @@ type Task struct {
 
 func (t *Task) Validate() error {
     return validation.ValidateStruct(t,
-		validation.Field(
-			&t.Name,
-			validation.Required.Error("name is required"),
-		),
+		validation.Field(&t.ID, validation.Required),
+		validation.Field(&t.Name, validation.Required),
+		validation.Field(&t.Completed, validation.NotNil),
 	)
 }
