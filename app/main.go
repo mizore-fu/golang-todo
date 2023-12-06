@@ -18,20 +18,8 @@ func (ts *Tasks) GetAllTasks() []*model.Task {
 	return ts.tasks
 }
 
-func (ts *Tasks) AddTask(c echo.Context) error {
-	addedTask := new(model.Task)
-	if err := c.Bind(addedTask); err != nil {
-		return err
-	}
-	addedTask.ID = "taskid-" + uuid.NewString()
-	addedTask.Completed = false
-
-	if err := addedTask.Validate(); err != nil {
-		return err
-	}
-
+func (ts *Tasks) AddTask(addedTask *model.Task) {
 	ts.tasks = append(ts.tasks, addedTask)
-	return nil
 }
 
 func (ts *Tasks) DeleteTask(id string) error {
@@ -90,9 +78,18 @@ func GetAllTasksHandler(c echo.Context) error {
 //POST /tasks
 //body: {name: "test"}
 func AddTaskHandler(c echo.Context) error {
-	if err := tasks.AddTask(c); err != nil {
+	addedTask := &model.Task{}
+	if err := c.Bind(addedTask); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	addedTask.ID = "taskid-" + uuid.NewString()
+	addedTask.Completed = false
+
+	if err := addedTask.Validate(); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	tasks.AddTask(addedTask)
 	return c.JSON(http.StatusCreated, nil)
 }
 
