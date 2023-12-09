@@ -1,4 +1,4 @@
-### このアプリは react-counter <https://github.com/mizore-fu/react-todo> とセットです。
+### このアプリは [react-todo](https://github.com/mizore-fu/react-todo) とセットです。
 
 #### 起動方法
 
